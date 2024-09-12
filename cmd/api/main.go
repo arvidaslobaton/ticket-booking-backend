@@ -6,6 +6,7 @@ import (
 	"github.com/arvidaslobaton/ticket-booking-app-v1/config"
 	"github.com/arvidaslobaton/ticket-booking-app-v1/db"
 	"github.com/arvidaslobaton/ticket-booking-app-v1/handlers"
+	"github.com/arvidaslobaton/ticket-booking-app-v1/middlewares"
 	"github.com/arvidaslobaton/ticket-booking-app-v1/repositories"
 	"github.com/arvidaslobaton/ticket-booking-app-v1/services"
 	"github.com/gofiber/fiber/v2"
@@ -34,11 +35,11 @@ func main() {
 
 	handlers.NewAuthHandler(server.Group("/auth"), authService)
 
-	// privateRoutes := server.Use(middleware.AuthProtected(db))
+	privateRoutes := server.Use(middlewares.AuthProtected(db))
 
 	// Handlers
-	handlers.NewEventHandler(server.Group("/event"), eventRepository)
-	handlers.NewTicketHandler(server.Group("/ticket"), ticketRepository)
+	handlers.NewEventHandler(privateRoutes.Group("/event"), eventRepository)
+	handlers.NewTicketHandler(privateRoutes.Group("/ticket"), ticketRepository)
 
 	app.Listen(fmt.Sprintf(":" + envConfig.ServerPort))
 }
